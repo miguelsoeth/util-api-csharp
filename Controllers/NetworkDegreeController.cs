@@ -140,4 +140,36 @@ public class NetworkDegreeController : ControllerBase
             return StatusCode(500, new { error = "Failed to fetch images" });
         }
     }
+    
+    [HttpPost("put-images")]
+    public async Task<IActionResult> putImages(List<string> relationship)
+    {
+        try
+        {
+            var relationWithImages = new Dictionary<string, string>();
+
+            if (relationship != null)
+            {
+                foreach (var relation in relationship)
+                {
+                    var images = await _tmdbImageService.FetchTheMovieDBImages(relation);
+                    if (images.Count > 0)
+                    {
+                        relationWithImages[relation] = images[0];
+                    }
+                }
+
+                return Ok(relationWithImages);
+            }
+            else
+            {
+                return NotFound(new { message = "Relationship cannot be found" });
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error calculating actors network: {ex.Message}");
+            return StatusCode(500, new { error = "Error calculating actors network" });
+        }
+    }
 }
