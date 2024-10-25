@@ -5,7 +5,7 @@ using util_api_csharp.Models;
 namespace util_api_csharp.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/network-degree")]
 public class NetworkDegreeController : ControllerBase
 {
     private readonly IFilmeService _filmeService;
@@ -19,7 +19,7 @@ public class NetworkDegreeController : ControllerBase
         _tmdbImageService = tmdbImageService;
     }
     
-    [HttpGet("/actors/all")]
+    [HttpGet("actors/all")]
     public async Task<IActionResult> getActors()
     {
         try
@@ -42,8 +42,8 @@ public class NetworkDegreeController : ControllerBase
         }
     }
     
-    [HttpGet("/actors")]
-    public async Task<IActionResult> searchActor([FromQuery] string query)
+    [HttpGet("actor")]
+    public async Task<IActionResult> searchActor([FromQuery] string? query)
     {
         try
         {
@@ -65,7 +65,7 @@ public class NetworkDegreeController : ControllerBase
         }
     }
     
-    [HttpGet("/network")]
+    [HttpGet("network")]
     public async Task<IActionResult> getNetwork([FromQuery] string origin, [FromQuery] string destiny)
     {
         try
@@ -98,7 +98,7 @@ public class NetworkDegreeController : ControllerBase
         }
     }
     
-    [HttpGet("/network/all")]
+    [HttpGet("network/all")]
     public async Task<IActionResult> getAllNetwork([FromQuery] string origin, [FromQuery] string destiny)
     {
         try
@@ -118,7 +118,7 @@ public class NetworkDegreeController : ControllerBase
         }
     }
     
-    [HttpGet("/image")]
+    [HttpGet("image")]
     public async Task<IActionResult> searchImage(string query)
     {
         try

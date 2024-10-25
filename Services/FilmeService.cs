@@ -11,7 +11,7 @@ namespace util_api_csharp.Services;
 
 public class FilmeService : IFilmeService
 {
-    public async Task<ActorResult> GetActorAsync(string query, int page = 1, int limit = 15)
+    public async Task<ActorResult> GetActorAsync(string? query, int page = 1, int limit = 15)
     {
         var movies = await GetMoviesAsync();
         var actorsResult = new HashSet<string>();
@@ -20,6 +20,11 @@ public class FilmeService : IFilmeService
         {
             foreach (var actor in movie.Cast)
             {
+                if (query == null)
+                {
+                    actorsResult.Add(actor);
+                    continue;
+                }
                 if (actor.Contains(query, StringComparison.OrdinalIgnoreCase))
                 {
                     actorsResult.Add(actor);
