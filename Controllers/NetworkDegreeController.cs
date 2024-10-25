@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using util_api_csharp.Interfaces;
+using util_api_csharp.Models;
 
 namespace util_api_csharp.Controllers;
 
@@ -89,6 +90,26 @@ public class NetworkDegreeController : ControllerBase
             {
                 return NotFound(new { message = "Relationship cannot be found" });
             }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error calculating actors network: {ex.Message}");
+            return StatusCode(500, new { error = "Error calculating actors network" });
+        }
+    }
+    
+    [HttpGet("/network/all")]
+    public async Task<IActionResult> getAllNetwork([FromQuery] string origin, [FromQuery] string destiny)
+    {
+        try
+        {
+            var relationship = await _grafoService.GetAllActorsNetworkAsync(origin, destiny, 8);
+            var result = new AllNetworkResult()
+            {
+                total = relationship.Count,
+                results = relationship
+            };
+            return Ok(result);
         }
         catch (Exception ex)
         {

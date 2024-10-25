@@ -63,6 +63,60 @@ public class Graph
 
         return null; // No path found
     }
+    
+    public async Task<List<List<string>>> FindAllShortestPaths(string actor1, string actor2, int limit)
+    {
+        limit += 1;
+        var queue = new Queue<List<string>>();
+        queue.Enqueue(new List<string> { actor1 });
+        var visited = new HashSet<string> { actor1 };
+        var paths = new List<List<string>>();
+
+        while (queue.Count > 0)
+        {
+            var currentPath = queue.Dequeue();
+            var currentVertex = currentPath[^1];
+
+            // Limit path length to 8 edges (9 vertices)
+            if (currentPath.Count > limit)
+                continue;
+
+            if (currentVertex == actor2)
+            {
+                paths.Add(new List<string>(currentPath));
+                Console.WriteLine(paths.Count);
+                continue;
+            }
+
+            foreach (var neighbor in _vertices[currentVertex])
+            {
+                // Only add to the new path if neighbor is not already in the current path to prevent cycles
+                if (!currentPath.Contains(neighbor))
+                {
+                    var newPath = new List<string>(currentPath) { neighbor };
+                    queue.Enqueue(newPath);
+
+                    // Mark neighbor as visited only within this path's context to allow for path exploration
+                    if (!visited.Contains(neighbor) && newPath.Count < limit)
+                    {
+                        visited.Add(neighbor);
+                    }
+                }
+            }
+        }
+
+        if (paths.Count > 0)
+        {
+            Console.WriteLine($"Shortest paths between {actor1} and {actor2}:");
+            Console.WriteLine(paths.Count);
+            return paths;
+        }
+        else
+        {
+            Console.WriteLine($"No relationship between {actor1} and {actor2}");
+            return paths;
+        }
+    }
 }
 
 public class GrafoService : IGrafoService
@@ -92,5 +146,34 @@ public class GrafoService : IGrafoService
         }
 
         return _graph.FindShortestRelationship(actor1, actor2);
+    }
+    
+    public async Task<Dictionary<string, int>> GetAllActorsNetworkAsync(string actor1, string actor2, int limit)
+    {
+        var movies = await _filmeService.GetMoviesAsync();
+
+        foreach (var movie in movies)
+        {
+            _graph.AddVertex(movie.Title);
+
+            foreach (var actor in movie.Cast)
+            {
+                _graph.AddVertex(actor);
+                _graph.AddEdge(movie.Title, actor);
+            }
+        }
+        
+        var result = await _graph.FindAllShortestPaths(actor1, actor2, limit);
+
+        var response = new Dictionary<string, int>();
+
+        foreach (var list in result)
+        {
+            string line = string.Join("->", list);
+            int count = list.Count-1;
+            response.Add(line, count);
+        }
+
+        return response;
     }
 }
